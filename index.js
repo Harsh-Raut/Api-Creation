@@ -139,6 +139,27 @@ app.get('/bar-chart', async (req, res) => {
 
 // API for the pie chart (same as before)
 // ...
+app.get('/pie-chart', async (req, res) => {
+    const { month } = req.query;
+  
+    // Find unique categories and the number of items from each category for the selected month
+    const categoryData = await Transaction.aggregate([
+      {
+        $match: {
+          dateOfSale: { $regex: `.*${month}.*`, $options: 'i' },
+        },
+      },
+      {
+        $group: {
+          _id: '$category',
+          itemCount: { $sum: 1 },
+        },
+      },
+    ]);
+  
+    res.json(categoryData);
+  });
+  
 
 // API to combine data from all APIs
 app.get('/combine-data', async (req, res) => {
