@@ -101,6 +101,41 @@ app.get('/statistics', async (req, res) => {
 
 // API for the bar chart (same as before)
 // ...
+app.get('/bar-chart', async (req, res) => {
+    const { month } = req.query;
+  
+    // Define price ranges
+    const priceRanges = [
+      { min: 0, max: 100 },
+      { min: 101, max: 200 },
+      { min: 201, max: 300 },
+      { min: 301, max: 400 },
+      { min: 401, max: 500 },
+      { min: 501, max: 600 },
+      { min: 601, max: 700 },
+      { min: 701, max: 800 },
+      { min: 801, max: 900 },
+      { min: 901, max: Infinity },
+    ];
+  
+    // Calculate the number of items in each price range for the selected month
+    const priceRangeData = [];
+  
+    for (const range of priceRanges) {
+      const count = await Transaction.countDocuments({
+        dateOfSale: { $regex: `.*${month}.*`, $options: 'i' },
+        price: { $gte: range.min, $lte: range.max },
+      });
+  
+      priceRangeData.push({
+        priceRange: `${range.min} - ${range.max}`,
+        itemCount: count,
+      });
+    }
+  
+    res.json(priceRangeData);
+  });
+  
 
 // API for the pie chart (same as before)
 // ...
